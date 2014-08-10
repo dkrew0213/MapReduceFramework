@@ -1,0 +1,98 @@
+     JobConf conf = new JobConf(WordCount.class);
+40.	     conf.setJobName("wordcount");
+41.	
+42.	     conf.setOutputKeyClass(Text.class);
+43.	     conf.setOutputValueClass(IntWritable.class);
+44.	
+45.	     conf.setMapperClass(Map.class);
+46.	     conf.setCombinerClass(Reduce.class);
+47.	     conf.setReducerClass(Reduce.class);
+48.	
+49.	     conf.setInputFormat(TextInputFormat.class);
+50.	     conf.setOutputFormat(TextOutputFormat.class);
+51.	
+52.	     FileInputFormat.setInputPaths(conf, new Path(args[0]));
+53.	     FileOutputFormat.setOutputPath(conf, new Path(args[1]));
+54.	
+55.	     JobClient.runJob(conf);
+
+
+
+//TODO: Abhi
+(Search for this that needs to be implemented)
+
+Split the data -> so that we can work on it independently and 
+then aggregate the results that we have (sequential)
+
+Put similar things in a common bucket. (Sorted by KEYS)
+
+We need to make sure that BAD input is IGNORED (robutsness is important)
+we do not want to run for long time and fuck up for BAD. 
+Experienece with BATCH processing at SAGITEC
+
+-- Components of this system -- 
+
+Files/Data - Some input that we need to process/chew upon
+
+System Orchestrator - Accepting input/requests from USER to start some jobs/data crunching work
+
+Job Tracker - Submit the job to this guy - it divides tasks into mappers and reducers (Overall distrubuted Monitoring of the Work)
+(Distributed Co-ordinator)
+
+Task Tracker (running as daemon on each of the nodes to do some work) 
+(Local monitoring of work on each Node) (Local Co-ordinator)
+
+Worker-MapComputation (actually doing the work)
+
+Worker-ReduceComputation (actually doing the work of Reduce)
+
+Polling mechanism needs for the Job's Progress Reporting 
+
+
+Tasks of the Framework: 
+- Scheduling the Tasks
+- Monitorting the Progress
+- Re-exeuting the failed tasks 
+- Handling failure of the nodes
+
+
+Anatomy of a MapReduce Job Run 
+	Job Submission 
+	Job Initialization 
+	Task Assignment 
+	Task Execution 
+	Progress and Status Updates 
+	Job Completion 
+
+Failures 
+	Task Failure 
+ 	Tasktracker Failure 
+	Jobtracker Failure 
+  Job Scheduling 
+		The Fair Scheduler 
+  Shuffle and Sort 
+		The Map Side 
+		The Reduce Side
+
+ Skipping Bad Records 
+
+ 
+ 
+ 
+ Very Excellent Summary
+ A MapReduce job usually splits the input data-set into independent chunks which are processed by the map tasks in a completely parallel manner. 
+ The framework sorts the outputs of the maps, which are then input to the reduce tasks. Typically both the input and the output of the job are stored in a file-system. The framework takes care of scheduling tasks, monitoring them and re-executes the failed tasks.
+
+Typically the compute nodes and the storage nodes are the same, that is, the MapReduce framework and the Hadoop Distributed File System
+ (see HDFS Architecture Guide) are running on the same set of nodes. This configuration allows the framework to effectively schedule tasks on the nodes where data is already present, resulting in very high aggregate bandwidth across the cluster.
+
+The MapReduce framework consists of a single master JobTracker and one slave TaskTracker per cluster-node. 
+The master is responsible for scheduling the jobs' component tasks on the slaves, monitoring them and re-executing the failed tasks. 
+The slaves execute the tasks as directed by the master.
+
+Minimally, applications specify the input/output locations and supply map and reduce functions via implementations of appropriate 
+interfaces and/or abstract-classes. These, and other job parameters, comprise the job configuration. 
+The Hadoop job client then submits the job (jar/executable etc.) and configuration to the JobTracker which then assumes the
+ responsibility of distributing the software/configuration to the slaves, scheduling tasks and monitoring them, providing status and diagnostic information to the job-client.
+
+ 
